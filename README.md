@@ -104,7 +104,7 @@ The following endpoints are available in the Todo List API:
 - 'GET /auth/refresh': Refresh the access token.
 - 'POST /auth/access_token': Obtain a new access token using a refresh token.
 
-## Project Regiments
+## Project Requiments
 
 - [Todo List API](https://roadmap.sh/projects/todo-list-api)
 
