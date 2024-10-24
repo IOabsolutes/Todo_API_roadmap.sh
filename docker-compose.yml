@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    restart: on-failure
+    ports:
+      - "8000:8000"
+    environment:
+      DB_USER: ${DATABASE_USER:-postgres}
+      DB_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      DB_HOST: ${DATABASE_HOST:-postgres}
+      DB_PORT: 5432
+      DB_NAME: ${DATABASE_NAME:-todo_database}
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    links:
+      - db
+    networks:
+      - app-network
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      POSTGRES_DB: ${DATABASE_NAME:-todo_database}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
